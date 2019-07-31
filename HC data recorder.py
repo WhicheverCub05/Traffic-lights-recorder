@@ -32,27 +32,27 @@ def display_image(image):
 
 def image_grab(number):
     if number == 1:
-        capture = ImageGrab.grab(bbox=(820, 186, 891, 206))
+        capture = ImageGrab.grab(bbox=(950, 186, 1091, 206))
         capture_np = np.array(capture)
 
     elif number == 2:
-        capture = ImageGrab.grab(bbox=(320, 186, 380, 206))
+        capture = ImageGrab.grab(bbox=(440, 184, 500, 206))
         capture_np = np.array(capture)
 
     elif number == 3:
-        capture = ImageGrab.grab(bbox=(37, 164, 110, 190))
+        capture = ImageGrab.grab(bbox=(173, 162, 234, 190))
         capture_np = np.array(capture)
 
     elif number == 4:  # actual runtime
-        capture = ImageGrab.grab(bbox=(37, 124, 110, 150))
+        capture = ImageGrab.grab(bbox=(170, 122, 234, 153))
         capture_np = np.array(capture)
 
     elif number == 5:  # finished packs
-        capture = ImageGrab.grab(bbox=(852, 640, 953, 665))
+        capture = ImageGrab.grab(bbox=(825, 640, 953, 665))
         capture_np = np.array(capture)
 
     elif number == 6:  # finished cases
-        capture = ImageGrab.grab(bbox=(1460, 640, 1503, 665))
+        capture = ImageGrab.grab(bbox=(1429, 633, 1505, 670))
         capture_np = np.array(capture)
 
     else:
@@ -74,10 +74,10 @@ def keyboard_type(key):
 
 def increment_time(starting_min):
     # OEE testbed
-    mouse_click(637, 77)
+    mouse_click(700, 77)
     time.sleep(0.25)
     keyboard_type('0{}'.format(starting_min))
-    mouse_click(720, 70)
+    mouse_click(800, 70)
     time.sleep(2)
     # TO Finished packs
     mouse_click(637, 495)
@@ -94,7 +94,9 @@ def increment_time(starting_min):
 
 
 def ocr(image):
+    time.sleep(0.25)
     value = pytesseract.image_to_string(image)
+    time.sleep(0.25)
     print('value: ', value)
     if value == ' ':
         value = '0'
@@ -103,38 +105,17 @@ def ocr(image):
         return value
 
 
-'''
 def correct_value(ocr_character):
     value = ocr_character
     value.replace(' ', '')  # removes spaces
-    value.replace('abcdefghijklmnopqrstuvwxyz,</?;'"|[{]}", '')
+    value = value.translate({ord(i): None for i in ' '})
+    value = value.translate({ord(i): None for i in 'abcdefghijklmnopqrstuvwxyz,</?;|[{!@#$%^&*()]}'})
     return value
-
-
-def correct_list():
-    for i in range(0, len(ocr_figureList)):
-        for j in range(0, 1):
-            value = correct_value(ocr_figure[j+i])
-            number_figure.append(value)
-        number_figureList.append(number_figure)
-    print("number_figureList: ", number_figureList)
-'''
-
-
-def write_to_excel(values, iterations, value_count):
-    mouse_click(350, 695)
-    hInc = 70
-    vInc = 15
-    for i in range(0, iterations):
-        mouse_click(350+(i*hInc), 695)
-        for j in range(0, value_count):  # len(number_figureList)
-            mouse_click(350+(i*hInc), 695+((j % value_count)*vInc))
-            keyboard_type('{}'.format(values[i][j]))
 
 
 def make_excel_list(values, iterations, value_count):
     for i in range(0, ((len(values)) // value_count)):
-        listCounter= i * value_count
+        listCounter = i * value_count
         for j in range(0, value_count):
             tempList.append(values[listCounter])
             listCounter += 1
@@ -147,7 +128,48 @@ def make_excel_list(values, iterations, value_count):
         del tempList[0:value_count]
 
 
-def main_sequence(iterations, interval_time):
+
+def correct_list(value_count, valueList, valueListList):
+    for i in range(0, len(valueList)//value_count):
+        number = i * value_count
+        for j in range(0, len(valueList)):
+            value = correct_value(valueList[j])
+            print('number: ', number)
+            number += 1
+            number_figure.append(value)  # number_figure.append
+        number_figureList.append(number_figure)  # number_figure
+    print("corrected list: ", number_figureList)
+    return_list = number_figureList
+    return return_list
+
+
+def write_to_excel(values, iterations, value_count):
+    mouse_click(350, 695)
+    hInc = 70
+    vInc = 15
+    for i in range(0, iterations):
+        mouse_click(350+(i*hInc), 695)
+        for j in range(0, value_count):  # len(number_figureList)
+            mouse_click(350+(i*hInc), 695+((j % value_count)*vInc))
+            keyboard_type('{}'.format(values[i][j]))
+'''
+
+def make_excel_list(values, iterations, value_count):
+    for i in range(0, ((len(values)) // value_count)):
+        listCounter = i * value_count
+        for j in range(0, value_count):
+            tempList.append(values[listCounter])
+            listCounter += 1
+        ocr_figureList.append(tempList)
+        print('ocr: ', ocr_figureList)
+        if len(ocr_figureList) == iterations:
+            return ocr_figureList
+        else:
+            pass
+        del tempList[0:value_count]
+'''
+
+def main_sequence(iterations, interval_time, value_count):
     for i in range(0, iterations):
         increment_time(i)
         time.sleep(interval_time)
@@ -160,11 +182,12 @@ def main_sequence(iterations, interval_time):
 
 def the_thing():
     interval_time = 2
-    iterations = int(2)
+    iterations = int(10)
     value_count = int(6)
-    main_sequence(iterations, interval_time)
-    usableList = make_excel_list(ocr_figure, iterations, value_count)
-    write_to_excel(usableList, iterations, value_count)
+    main_sequence(iterations, interval_time, value_count)
+    compiledList = make_excel_list(ocr_figure, iterations, value_count)
+    corrected_list = correct_list(value_count, ocr_figure, compiledList)
+    write_to_excel(corrected_list, iterations, value_count)
 
 
 while True:
@@ -181,6 +204,12 @@ while True:
         print('closing program')
         time.sleep(2)
         break
+    elif answer.lower() == 'test':
+        while True:
+            image = image_grab(int(input('enter the grab: ')))
+            ocr(image)
+            display_image(image)
+
     else:
         print('enter the correct input')
 
