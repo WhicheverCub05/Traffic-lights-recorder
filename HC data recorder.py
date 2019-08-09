@@ -41,6 +41,14 @@ def open_image(picture_name):
     return image
 
 
+def display_image(image):
+    image_np = np.array(image)
+    cv2.imshow('', image_np)
+    k = cv2.waitKey(0)
+    if k == 27:
+        cv2.destroyWindow('')
+
+
 def image_grab_oee_pie_times(number, iteration_number):
     iteration_number = iteration_number
     key_list = [['pgt', 0],
@@ -54,35 +62,35 @@ def image_grab_oee_pie_times(number, iteration_number):
                 ['ms', -28],
                 ['cr', -11],
                 ['atc', 66]]
-    base_left = 110 + key_list[number][1]
-    base_top = 100 + (20 * iteration_number)
+    base_left = 105 + key_list[number][1]
+    base_top = 95 + (20 * iteration_number)
     base_right = 225
     base_bottom = base_top + 20
-
-    if 0 < number < 12:
-        capture = ImageGrab.grab(bbox=(base_left, base_top, base_right, base_bottom))
-
-    elif number == 12:  # Total Time
-        capture = ImageGrab.grab(bbox=())
+    capture = ImageGrab.grab(bbox=(base_left, base_top, base_right, base_bottom))
 
     print('returning capture in image_grab_pie')
 
     return capture
-    print('returning worked')
 
 
 def image_grab_oee_pie_percentage(number):
-    if number == 13:  # OEE
-        capture = ImageGrab.grab(bbox=(31, 380, 200, 400))
+    if number == 12:  # Total Time
+        capture = ImageGrab.grab(bbox=(62, 380, 190, 400))
+
+    elif number == 13:  # OEE
+        capture = ImageGrab.grab(bbox=(31, 405, 190, 425))
 
     elif number == 14:  # Availability rate
-        capture = ImageGrab.grab(bbox=(87, 405, 200, 425))
+        capture = ImageGrab.grab(bbox=(90, 425, 190, 445))
 
     elif number == 15:  # Performance rate
-        capture = ImageGrab.grab(bbox=(97, 430, 200, 450))
+        capture = ImageGrab.grab(bbox=(97, 445, 190, 465))
 
     elif number == 16:  # Quality rate
-        capture = ImageGrab.grab(bbox=(71, 455, 200, 475))
+        capture = ImageGrab.grab(bbox=(71, 465, 190, 485))
+
+    else:
+        capture = ImageGrab.grab(bbox=(0, 0, 1, 1))
 
     return capture
 
@@ -109,6 +117,7 @@ def image_grab_oee_testbed(number):
     else:
         capture = ImageGrab.grab(bbox=(0, 0, 1, 1))
         print("nothing was read")
+        cv2.destroyAllWindows()
 
     return capture
 
@@ -189,41 +198,6 @@ def correct_list(list_to_correct):
     return corrected_list
 
 
-'''
-def make_excel_list(values, iterations, value_count):
-    for i in range(0, ((len(values)) // value_count)):
-        listCounter = i * value_count
-        for j in range(0, value_count):
-            tempList.append(values[listCounter])
-            listCounter += 1
-        ocr_figureList.append(tempList)
-        print('ocr: ', ocr_figureList)
-        if len(ocr_figureList) == iterations:
-            return ocr_figureList
-        else:
-            pass
-        del tempList[0:value_count]
-
-
-def correct_list(value_count, valueList, iterations):
-    for i in range(0, iterations):  # len(valueList) // value_count
-        number = i * value_count
-        for j in range(0, len(valueList)):
-            value = correct_value(valueList[j])
-            print('number: ', number)
-            number += 1
-            number_figure.append(value)
-            print(number_figure)# number_figure.append
-        number_figureList.append(number_figure)
-        print('number fig appended: ', number_figureList)# number_figure
-        if len(number_figureList) < iterations:
-            del number_figure[0:len(number_figure)]
-        else:
-            print(number_figureList)
-            return number_figureList
-'''
-
-
 def split_list(list_of_values, iterations, value_count, current_iteration):
     temporary_list = []
     for j in range(0, value_count):
@@ -243,24 +217,11 @@ def reconstruct_list(list_of_values, iterations, value_count):
     return constructed_list
 
 
-'''
-def correct_list(value_count, valueList):
-    for i in range(0, len(valueList)//value_count):
-        number = i * value_count
-        for j in range(0, len(valueList)):
-            value = correct_value(valueList[j])
-            print('number: ', number)
-            number += 1
-            number_figure.append(value)  # number_figure.append
-        number_figureList.append(number_figure)  # number_figure
-    print("corrected list: ", number_figureList)
-    return_list = number_figureList
-    return return_list
-'''
-
-
-def write_to_excel(values, iterations, value_count):
-    mouse_click(288, 855)
+def write_to_excel(values, iterations, value_count, setup):
+    if setup == 'op':
+        mouse_click(240, 680)
+    else:
+        mouse_click(288, 855)
     time.sleep(1)
     for i in range(0, iterations):
 
@@ -271,34 +232,6 @@ def write_to_excel(values, iterations, value_count):
         pyautogui.press('right')
         for k in range(0, value_count):
             pyautogui.press('up')
-
-
-'''
-def write_to_excel(values, iterations, value_count):
-    mouse_click(350, 695)
-    hInc = 70
-    vInc = 15
-    for i in range(0, iterations):
-        mouse_click(350+(i*hInc), 695)
-        for j in range(0, value_count):  # len(number_figureList)
-            mouse_click(350+(i*hInc), 695+((j % value_count)*vInc))
-            keyboard_type('{}'.format(values[i][j]))
-
-
-def make_excel_list(values, iterations, value_count):
-    for i in range(0, ((len(values)) // value_count)):
-        listCounter = i * value_count
-        for j in range(0, value_count):
-            tempList.append(values[listCounter])
-            listCounter += 1
-        ocr_figureList.append(tempList)
-        print('ocr: ', ocr_figureList)
-        if len(ocr_figureList) == iterations:
-            return ocr_figureList
-        else:
-            pass
-        del tempList[0:value_count]
-'''
 
 
 def oee_testbed_run_sequence(iterations, value_count, interval_min):
@@ -353,12 +286,22 @@ def the_thing(which_thing, interval_min, value_list):
         oee_pie_run_sequence(iterations, value_count, interval_min, value_list)
     corrected_list = correct_list(ocr_figure)
     constructed_list = reconstruct_list(corrected_list, iterations, value_count)
-    write_to_excel(constructed_list, iterations, value_count)
+    write_to_excel(constructed_list, iterations, value_count, which_thing)
 
 
-def test_ocr():
-    image = image_grab_oee_testbed(int(input('enter the grab: ')))
-    ocr(image)
+def test_ocr(setup, grab):
+    if setup == 'op':
+        if grab < 12:
+            iteration = int(input('iteration number?: '))
+            image = image_grab_oee_pie_times(iteration, grab)
+        else:
+            image = image_grab_oee_pie_percentage(grab)
+    elif setup == 'ot':
+        image = image_grab_oee_testbed(grab)
+    else:
+        image = image_grab_oee_testbed(7)
+
+    print(correct_value(ocr(image)))
     processed_image = process_image(image)
     display_image(processed_image)
 
@@ -367,7 +310,7 @@ def test_mouse():
     found = False
     while not found:
         print(pyautogui.position())
-        time.sleep(5)
+        time.sleep(2)
         k = cv2.waitKey(0)
         if k == 15:
             print("found position: ", pyautogui.position())
@@ -386,7 +329,6 @@ def make_str_list_into_int_list(str_list):
 
 run = False
 
-
 while not run:
     answer = input('do the thing? y/n/test: ')
     try:
@@ -394,8 +336,8 @@ while not run:
     except:
         print('input a letter')
     if answer == 'y' or answer == 'Y':
-        which_thing = input('OEE or OEE Testbed? (O/OT): ').lower()
-        if which_thing == 'o':
+        which_thing = input('OEE testbed or OEE pie? (OP/OT): ').lower()
+        if which_thing == 'op':
             user_time_interval = int(input('how many minutes between intervals?: '))
             for k, v in oee_pie_key_value_pair.items():
                 print(k, v)
@@ -415,65 +357,41 @@ while not run:
         print('closing program')
         time.sleep(2)
         break
+
     elif answer.lower() == 'test':
-        test_run = True
-        while test_run:
-            try:
-                test_type = input('capture zone or mouse move or quit(c/m/q)?').lower()
-            except ValueError:
-                print('only input c or m or q')
-                test_type = ' '
+        test_selection = True
+        while test_selection:
 
-            if test_type == 'c':
-                while True:
-                    test_ocr()
+            test_run = True
+            while test_run:
+                try:
+                    test_type = input('capture zone or mouse move or quit(c/m/q)?').lower()
+                except ValueError:
+                    print('only input c or m or q')
+                    test_type = ' '
 
-            elif test_type == 'm':
-                while True:
-                    test_mouse()
+                if test_type == 'c':
+                    while True:
+                        setup = input('which setup? OEE testbed or OEE pie? (ot/op)/(q to quit)').lower()
+                        grab = int(input('which zone?: '))
+                        if setup == 'q':
+                            test_selection = False
+                            break
+                        else:
+                            test_ocr(grab=grab, setup=setup)
 
-            elif test_type == 'q':
-                test_run = False
+                elif test_type == 'm':
+                    while True:
+                        test_mouse()
 
-            else:
-                print('input a valid character')
+                elif test_type == 'q':
+                    test_run = False
+
+                else:
+                    print('input a valid character')
     else:
         print('input a valid character')
 
     run = True
 
 
-'''
-def test_sequence():
-    time_increment = 0
-    for j in range(0, 3):
-        image_to_process = image_grab(j+1)
-        ocr_value = (ocr(image_to_process))
-        display_image(image_to_process)
-        ocr_figure.append(ocr_value)
-    ocr_figureList.append(ocr_figure)
-    time_increment += 1
-    time.sleep(2)
-    increment_time(time_increment % 60)
-    print("ocr_figureList: ", ocr_figureList)
-
-
-while not keybreak:
-    k = cv2.waitKey(0)
-    image1 = open_image("image.png")
-    display_image(image1)
-    time.sleep(3)
-    cv2.destroyWindow('')
-    print(pytesseract.image_to_string(image1))
-    if k == 27:
-        keybreak = True
-        break
-'''
-
-
-def display_image(image):
-    image_np = np.array(image)
-    cv2.imshow('', image_np)
-    k = cv2.waitKey(0)
-    if k == 27:
-        cv2.destroyWindow('')
