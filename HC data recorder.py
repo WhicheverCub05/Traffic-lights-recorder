@@ -62,9 +62,9 @@ def image_grab_oee_pie_times(number, iteration_number):
                 ['ms', -28],
                 ['cr', -11],
                 ['atc', 66]]
-    base_left = 105 + key_list[number][1]
-    base_top = 95 + (20 * iteration_number)
-    base_right = 225
+    base_left = 110 + key_list[number][1]
+    base_top = 92 + (20 * iteration_number)
+    base_right = 190
     base_bottom = base_top + 20
     capture = ImageGrab.grab(bbox=(base_left, base_top, base_right, base_bottom))
 
@@ -84,10 +84,10 @@ def image_grab_oee_pie_percentage(number):
         capture = ImageGrab.grab(bbox=(90, 425, 190, 445))
 
     elif number == 15:  # Performance rate
-        capture = ImageGrab.grab(bbox=(97, 445, 190, 465))
+        capture = ImageGrab.grab(bbox=(98, 440, 190, 465))
 
     elif number == 16:  # Quality rate
-        capture = ImageGrab.grab(bbox=(71, 465, 190, 485))
+        capture = ImageGrab.grab(bbox=(71, 460, 190, 485))
 
     else:
         capture = ImageGrab.grab(bbox=(0, 0, 1, 1))
@@ -185,7 +185,7 @@ def correct_value(ocr_character):
     value = ocr_character
     value = value.translate({ord(i): None for i in ' '})
     value = value.translate({ord(i): None for i in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                                                   ',</?;|[{!@#$%^&*()]}'})
+                                                   ',</?;|[{!@#$%^&*()]}=-_+'})
     return value
 
 
@@ -293,7 +293,7 @@ def test_ocr(setup, grab):
     if setup == 'op':
         if grab < 12:
             iteration = int(input('iteration number?: '))
-            image = image_grab_oee_pie_times(iteration, grab)
+            image = image_grab_oee_pie_times(iteration-1, grab-1)
         else:
             image = image_grab_oee_pie_percentage(grab)
     elif setup == 'ot':
@@ -301,8 +301,8 @@ def test_ocr(setup, grab):
     else:
         image = image_grab_oee_testbed(7)
 
-    print(correct_value(ocr(image)))
     processed_image = process_image(image)
+    print('ocr value read: ', correct_value(ocr(processed_image)))
     display_image(processed_image)
 
 
