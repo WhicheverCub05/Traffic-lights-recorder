@@ -251,17 +251,16 @@ def oee_testbed_run_sequence(iterations, value_count, interval_min):
 
 def oee_pie_run_sequence(iterations, value_count, interval_min, value_list):
     print('got to the pie')
+    complete_list = value_list.append(12, 13, 14, 15, 16)
     for i in range(0, iterations):
         start_time = time.time()
         increment_time_oee_pie(interval_min)
         print('val_list in oee_pie_seq: ', value_list)
 
-        print('what')
         for j in range(0, value_count):
             image = image_grab_oee_pie_times(value_list[j], j)
             processed_image = process_image(image)
             time.sleep(1)
-            print('slept')
             value = ocr(processed_image)
             ocr_figure.append(value)
 
@@ -278,11 +277,13 @@ def oee_pie_run_sequence(iterations, value_count, interval_min, value_list):
 
 
 def the_thing(which_thing, interval_min, value_list):
-    iterations = int(3)
-    value_count = int(3)
     if which_thing == 'ot':
+        iterations = int(input('how many columns of data would you like to collect?: '))
+        value_count = int(input('how many values?: '))
         oee_testbed_run_sequence(iterations, value_count, interval_min)
     else:
+        iterations = int(input('how many columns of data would you like to collect?: '))
+        value_count = 8
         oee_pie_run_sequence(iterations, value_count, interval_min, value_list)
     corrected_list = correct_list(ocr_figure)
     constructed_list = reconstruct_list(corrected_list, iterations, value_count)
