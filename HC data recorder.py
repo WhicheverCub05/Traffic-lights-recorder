@@ -62,6 +62,8 @@ def image_grab_oee_pie_times(number, iteration_number):
                 ['ms', -28],
                 ['cr', -11],
                 ['atc', 66]]
+    print('number: ', number)
+    print('key_list_number', key_list[number][1])
     base_left = 110 + key_list[number][1]
     base_top = 92 + (20 * iteration_number)
     base_right = 190
@@ -75,19 +77,19 @@ def image_grab_oee_pie_times(number, iteration_number):
 
 def image_grab_oee_pie_percentage(number):
     if number == 12:  # Total Time
-        capture = ImageGrab.grab(bbox=(62, 380, 190, 400))
+        capture = ImageGrab.grab(bbox=(62, 400, 190, 420))
 
     elif number == 13:  # OEE
-        capture = ImageGrab.grab(bbox=(31, 405, 190, 425))
+        capture = ImageGrab.grab(bbox=(31, 425, 190, 445))
 
     elif number == 14:  # Availability rate
-        capture = ImageGrab.grab(bbox=(90, 425, 190, 445))
+        capture = ImageGrab.grab(bbox=(90, 445, 190, 465))
 
     elif number == 15:  # Performance rate
-        capture = ImageGrab.grab(bbox=(98, 440, 190, 465))
+        capture = ImageGrab.grab(bbox=(98, 460, 190, 485))
 
     elif number == 16:  # Quality rate
-        capture = ImageGrab.grab(bbox=(71, 460, 190, 485))
+        capture = ImageGrab.grab(bbox=(71, 480, 190, 505))
 
     else:
         capture = ImageGrab.grab(bbox=(0, 0, 1, 1))
@@ -220,7 +222,9 @@ def reconstruct_list(list_of_values, iterations, value_count):
 def write_to_excel(values, iterations, value_count, setup):
     if setup == 'op':
         mouse_click(240, 680)
+        mouse_click(240, 680)
     else:
+        mouse_click(288, 855)
         mouse_click(288, 855)
     time.sleep(1)
     for i in range(0, iterations):
@@ -249,23 +253,43 @@ def oee_testbed_run_sequence(iterations, value_count, interval_min):
         time.sleep((interval_min*60)-run_time)
 
 
+def assign_oee_pie_capture_zone_test(grab):
+    if grab < 12:
+        iteration = int(input('iteration number?: '))
+        image = image_grab_oee_pie_times(iteration-1, grab-1)
+    else:
+        image = image_grab_oee_pie_percentage(grab)
+
+    return image
+
+
+def assign_oee_pie_capture_zone(grab, iteration):
+    print('assign numbers (grab): ', grab, '(iteration): ', iteration)
+    if grab < 12:
+        image = image_grab_oee_pie_times(grab, iteration-1)
+    else:
+        image = image_grab_oee_pie_percentage(grab)
+
+    return image
+
+
 def oee_pie_run_sequence(iterations, value_count, interval_min, value_list):
-    print('got to the pie')
-    complete_list = value_list.append(12, 13, 14, 15, 16)
+    bottom_values = [12, 13, 14, 15, 16]
+    map_list(1, value_list)
+    print('got to the pie_run_sequence')
+
+    for i in range(0, len(bottom_values)):
+        value_list.append(bottom_values[i])
+
+    print('value_count: ', value_count)
+
     for i in range(0, iterations):
         start_time = time.time()
         increment_time_oee_pie(interval_min)
         print('val_list in oee_pie_seq: ', value_list)
 
         for j in range(0, value_count):
-            image = image_grab_oee_pie_times(value_list[j], j)
-            processed_image = process_image(image)
-            time.sleep(1)
-            value = ocr(processed_image)
-            ocr_figure.append(value)
-
-        for j in range(0, value_count):
-            image = image_grab_oee_pie_percentage(value_list[j])
+            image = assign_oee_pie_capture_zone(value_list[j], j)
             processed_image = process_image(image)
             value = ocr(processed_image)
             ocr_figure.append(value)
@@ -273,7 +297,7 @@ def oee_pie_run_sequence(iterations, value_count, interval_min, value_list):
         run_time = time.time() - start_time
         print('run_time: ', run_time)
         print('sleep time: ', (interval_min*60)-run_time)
-        time.sleep((interval_min*60)-run_time)
+        #time.sleep((interval_min*60)-run_time)
 
 
 def the_thing(which_thing, interval_min, value_list):
@@ -283,7 +307,7 @@ def the_thing(which_thing, interval_min, value_list):
         oee_testbed_run_sequence(iterations, value_count, interval_min)
     else:
         iterations = int(input('how many columns of data would you like to collect?: '))
-        value_count = 8
+        value_count = len(value_list)
         oee_pie_run_sequence(iterations, value_count, interval_min, value_list)
     corrected_list = correct_list(ocr_figure)
     constructed_list = reconstruct_list(corrected_list, iterations, value_count)
@@ -292,11 +316,7 @@ def the_thing(which_thing, interval_min, value_list):
 
 def test_ocr(setup, grab):
     if setup == 'op':
-        if grab < 12:
-            iteration = int(input('iteration number?: '))
-            image = image_grab_oee_pie_times(iteration-1, grab-1)
-        else:
-            image = image_grab_oee_pie_percentage(grab)
+        image = assign_oee_pie_capture_zone_test(grab)
     elif setup == 'ot':
         image = image_grab_oee_testbed(grab)
     else:
@@ -320,6 +340,11 @@ def test_mouse():
             print('ending')
             time.sleep(2)
             break
+
+
+def map_list(map_by, list_to_map):
+    for i in range(0, len(list_to_map)):
+        list_to_map[i] = (list_to_map[i]-map_by)
 
 
 def make_str_list_into_int_list(str_list):
@@ -394,5 +419,3 @@ while not run:
         print('input a valid character')
 
     run = True
-
-
