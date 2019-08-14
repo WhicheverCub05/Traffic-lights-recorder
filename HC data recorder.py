@@ -53,7 +53,7 @@ def image_grab_oee_pie_times(number, iteration_number):
     iteration_number = iteration_number
     key_list = [['pgt', 0],
                 ['sdl', -9],
-                ['sdlc', 21],
+                ['sdlc', 18],
                 ['mess', 28],
                 ['mels', 24],
                 ['uso', 2],
@@ -193,10 +193,12 @@ def correct_value(ocr_character):
 
 def correct_list(list_to_correct):
     corrected_list = []
+    print('list to correct in correct_list: ', list_to_correct)
     for i in range(0, len(list_to_correct)):
         list_value = list_to_correct[i]
         corrected_list_value = correct_value(list_value)
         corrected_list.append(corrected_list_value)
+        print('correcting list: ', corrected_list)
     return corrected_list
 
 
@@ -220,12 +222,13 @@ def reconstruct_list(list_of_values, iterations, value_count):
 
 
 def write_to_excel(values, iterations, value_count, setup):
+    #clicks on the cell just above the data input
     if setup == 'op':
-        mouse_click(240, 680)
-        mouse_click(240, 680)
+        mouse_click(240, 700)
+        mouse_click(240, 700)
     else:
-        mouse_click(288, 855)
-        mouse_click(288, 855)
+        mouse_click(320, 755)
+        mouse_click(320, 755)
     time.sleep(1)
     for i in range(0, iterations):
 
@@ -241,7 +244,8 @@ def write_to_excel(values, iterations, value_count, setup):
 def oee_testbed_run_sequence(iterations, value_count, interval_min):
     for i in range(0, iterations):
         start_time = time.time()
-        increment_time_oee_testbed()
+        #increment_time_oee_testbed()
+        mouse_click(916, 50)
         for j in range(0, value_count):
             image = image_grab_oee_testbed(j+1)
             processed_image = process_image(image)
@@ -419,3 +423,40 @@ while not run:
         print('input a valid character')
 
     run = True
+
+
+'''
+def oee_pie_run_sequence(iterations, value_count, interval_min, value_list):
+    bottom_values = [12, 13, 14, 15, 16]
+    map_list(1, value_list)
+    print('got to the pie')
+
+    for i in range(0, len(bottom_values)):
+        value_list.append(bottom_values[i])
+
+    for i in range(0, iterations):
+        start_time = time.time()
+        increment_time_oee_pie(interval_min)
+        print('val_list in oee_pie_seq: ', value_list)
+
+        for j in range(0, value_count):
+            print('j: ', j)
+            print('value_list[j-1]: ', value_list[j - 1])
+            image = image_grab_oee_pie_times(value_list[j - 1], j)
+            processed_image = process_image(image)
+            time.sleep(1)
+            value = ocr(processed_image)
+            ocr_figure.append(value)
+
+        for j in range(0, value_count):
+            print('k', j)
+            image = image_grab_oee_pie_percentage(value_list[j + 11])
+            processed_image = process_image(image)
+            value = ocr(processed_image)
+            ocr_figure.append(value)
+
+        run_time = time.time() - start_time
+        print('run_time: ', run_time)
+        print('sleep time: ', (interval_min * 60) - run_time)
+        time.sleep((interval_min * 60) - run_time)
+'''
